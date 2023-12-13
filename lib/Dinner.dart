@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'Dinner_item.dart';
 import 'DinnerID.dart';
-import 'Stats.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Dinner extends StatefulWidget {
   const Dinner({super.key, required this.title});
 
@@ -100,6 +101,16 @@ class DinnerState extends State<Dinner> {
                   child: ElevatedButton(
                     child: Text("+",style: TextStyle(fontSize: 40),),
                     onPressed: () {
+                      FirebaseFirestore.instance.collection("Dinners").add(
+                          {
+                            "grocery": _dinnerController.text,
+                          }
+                      ).then((value) {
+                        print("Successfully added grocery");
+                      }).catchError((error){
+                        print("Failed to add grocery");
+                        print(error.toString());
+                      });
                       _addToDoItem(_dinnerController.text);
                     },
                     style: ElevatedButton.styleFrom(
@@ -112,14 +123,6 @@ class DinnerState extends State<Dinner> {
               ],)
           )
         ],
-      ),
-      floatingActionButton: Padding(
-          padding: EdgeInsets.only(bottom: 620),
-          child: FloatingActionButton(
-            onPressed: _moveToStats,
-            tooltip: 'Next',
-            child: const Icon(Icons.arrow_right),
-          )
       ),
     );
   }
@@ -154,13 +157,6 @@ class DinnerState extends State<Dinner> {
     setState(() {
       _foundDinner = results;
     });
-  }
-
-  void _moveToStats() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Stats(title: "Stats")),
-    );
   }
 
   Widget searchBox() {

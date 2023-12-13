@@ -2,6 +2,7 @@ import 'package:bootstrap_cm/Dinner.dart';
 import 'package:flutter/material.dart';
 import 'todo_item.dart';
 import 'ToDoID.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ToDo extends StatefulWidget {
   const ToDo({super.key, required this.title});
@@ -105,6 +106,17 @@ class ToDoState extends State<ToDo> {
                 child: ElevatedButton(
                   child: Text("+",style: TextStyle(fontSize: 40),),
                   onPressed: () {
+
+                    FirebaseFirestore.instance.collection("ToDos").add(
+                        {
+                          "grocery": _todoController.text,
+                        }
+                    ).then((value) {
+                      print("Successfully added grocery");
+                    }).catchError((error){
+                      print("Failed to add grocery");
+                      print(error.toString());
+                    });
                     _addToDoItem(_todoController.text);
                   },
                   style: ElevatedButton.styleFrom(
@@ -144,8 +156,8 @@ class ToDoState extends State<ToDo> {
   void _addToDoItem(String toDo){
     setState(() {
       todosList.add(ToDoID(id: DateTime.now().millisecondsSinceEpoch.toString(), todoText: toDo));
+      _todoController.clear();
     });
-    _todoController.clear();
   }
 
   void _runFilter(String enteredKeyword){
